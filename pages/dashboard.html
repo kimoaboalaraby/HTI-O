@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - نظام تسجيل المواد الجامعية</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- الشريط العلوي -->
+    <nav class="navbar">
+        <a href="../index.html" class="navbar-brand">
+            <i class="bi bi-journal-check"></i>
+            نظام تسجيل المواد
+        </a>
+        <ul class="navbar-nav">
+            <li><a href="dashboard.html" class="nav-link active">لوحة التحكم</a></li>
+            <li><a href="courses.html" class="nav-link">إدارة المواد</a></li>
+            <li><a href="groups.html" class="nav-link">إدارة المجموعات</a></li>
+            <li><a href="users.html" class="nav-link">المستخدمين</a></li>
+        </ul>
+        <div class="navbar-actions">
+            <div class="d-flex align-items-center gap-2">
+                <span id="currentUserName" class="text-white">المسؤول</span>
+                <button id="logoutButton" class="btn btn-outline" style="color: white; border-color: white;">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span class="d-none d-md-inline">تسجيل الخروج</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="container mt-4">
+        <h2 class="mb-4" style="color: var(--primary-color);">لوحة التحكم</h2>
+
+        <!-- الإحصائيات -->
+        <div class="stats-grid mb-4">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-journal-bookmark"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="coursesCount">0</div>
+                    <div class="stat-label">المواد المتاحة</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="groupsCount">0</div>
+                    <div class="stat-label">المجموعات</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="departmentsCount">0</div>
+                    <div class="stat-label">الأقسام</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="usersCount">0</div>
+                    <div class="stat-label">المستخدمين</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الرسوم البيانية -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h3 class="card-title">توزيع المواد حسب القسم</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="departmentsChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h3 class="card-title">توزيع الساعات المعتمدة</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="creditHoursChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- آخر المواد المضافة -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">آخر المواد المضافة</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>المادة</th>
+                                <th>القسم</th>
+                                <th>الساعات المعتمدة</th>
+                                <th>عدد المجموعات</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentCoursesList">
+                            <!-- سيتم ملء هذا الجدول بواسطة JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="courses.html" class="btn btn-primary">
+                    <i class="bi bi-list"></i>
+                    عرض جميع المواد
+                </a>
+            </div>
+        </div>
+
+        <!-- آخر المجموعات المضافة -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">آخر المجموعات المضافة</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>المادة</th>
+                                <th>المجموعة</th>
+                                <th>الأستاذ</th>
+                                <th>الموعد</th>
+                                <th>القاعة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentGroupsList">
+                            <!-- سيتم ملء هذا الجدول بواسطة JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="groups.html" class="btn btn-primary">
+                    <i class="bi bi-list"></i>
+                    عرض جميع المجموعات
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- تذييل الصفحة -->
+    <footer class="footer mt-5">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-brand-title">
+                        <i class="bi bi-journal-check"></i>
+                        نظام تسجيل المواد
+                    </div>
+                    <p class="footer-brand-description">
+                        نظام متكامل لتسجيل المواد الجامعية وإنشاء الجداول الدراسية بطريقة سهلة ومبتكرة.
+                    </p>
+                </div>
+                <div class="footer-links">
+                    <h3 class="footer-links-title">روابط الإدارة</h3>
+                    <a href="dashboard.html" class="footer-link">لوحة التحكم</a>
+                    <a href="courses.html" class="footer-link">إدارة المواد</a>
+                    <a href="groups.html" class="footer-link">إدارة المجموعات</a>
+                    <a href="users.html" class="footer-link">المستخدمين</a>
+                </div>
+                <div class="footer-links">
+                    <h3 class="footer-links-title">روابط سريعة</h3>
+                    <a href="../index.html" class="footer-link">الصفحة الرئيسية</a>
+                    <a href="../courses.html" class="footer-link">المواد الدراسية</a>
+                    <a href="../schedule.html" class="footer-link">الجدول الدراسي</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2025 نظام تسجيل المواد الجامعية. جميع الحقوق محفوظة.
+            </div>
+        </div>
+    </footer>
+
+    <!-- ملفات JavaScript -->
+    <script src="../js/data.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // التحقق من تسجيل الدخول
+            if (!checkAuth()) {
+                return;
+            }
+            
+            // تحديث الإحصائيات
+            updateDashboardStats();
+            
+            // عرض الرسوم البيانية
+            renderDepartmentsChart();
+            renderCreditHoursChart();
+            
+            // عرض آخر المواد المضافة
+            displayRecentCourses();
+            
+            // عرض آخر المجموعات المضافة
+            displayRecentGroups();
+        });
+
+        // تحديث إحصائيات لوحة التحكم
+        function updateDashboardStats() {
+            const courses = getCourses();
+            const groups = getGroups();
+            const departments = getDepartments();
+            const users = getUsers();
+            
+            document.getElementById('coursesCount').textContent = courses.length;
+            document.getElementById('groupsCount').textContent = groups.length;
+            document.getElementById('departmentsCount').textContent = departments.length;
+            document.getElementById('usersCount').textContent = users.length;
+        }
+
+        // رسم بياني لتوزيع المواد حسب القسم
+        function renderDepartmentsChart() {
+            const courses = getCourses();
+            const departments = getDepartments();
+            
+            // حساب عدد المواد في كل قسم
+            const departmentCounts = {};
+            departments.forEach(dept => {
+                departmentCounts[dept.id] = 0;
+            });
+            
+            courses.forEach(course => {
+                if (departmentCounts[course.department_id] !== undefined) {
+                    departmentCounts[course.department_id]++;
+                }
+            });
+            
+            // إعداد بيانات الرسم البياني
+            const labels = departments.map(dept => dept.name);
+            const data = departments.map(dept => departmentCounts[dept.id]);
+            const backgroundColors = [
+                'rgba(59, 130, 246, 0.7)',
+                'rgba(16, 185, 129, 0.7)',
+                'rgba(245, 158, 11, 0.7)',
+                'rgba(239, 68, 68, 0.7)',
+                'rgba(139, 92, 246, 0.7)',
+                'rgba(236, 72, 153, 0.7)',
+                'rgba(20, 184, 166, 0.7)'
+            ];
+            
+            // إنشاء الرسم البياني
+            const ctx = document.getElementById('departmentsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+        }
+
+        // رسم بياني لتوزيع الساعات المعتمدة
+        function renderCreditHoursChart() {
+            const courses = getCourses();
+            
+            // حساب عدد المواد لكل ساعة معتمدة
+            const creditHoursCounts = {
+                2: 0,
+                3: 0,
+                4: 0
+            };
+            
+            courses.forEach(course => {
+                if (creditHoursCounts[course.credit_hours] !== undefined) {
+                    creditHoursCounts[course.credit_hours]++;
+                }
+            });
+            
+            // إعداد بيانات الرسم البياني
+            const labels = Object.keys(creditHoursCounts).map(hours => `${hours} ساعات`);
+            const data = Object.values(creditHoursCounts);
+            const backgroundColors = [
+                'rgba(59, 130, 246, 0.7)',
+                'rgba(16, 185, 129, 0.7)',
+                'rgba(245, 158, 11, 0.7)'
+            ];
+            
+            // إنشاء الرسم البياني
+            const ctx = document.getElementById('creditHoursChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'عدد المواد',
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // عرض آخر المواد المضافة
+        function displayRecentCourses() {
+            const courses = getCourses();
+            const recentCoursesList = document.getElementById('recentCoursesList');
+            
+            // ترتيب المواد حسب المعرف (افتراضياً أن أحدث المواد لها أعلى معرف)
+            const sortedCourses = [...courses].sort((a, b) => b.id - a.id);
+            
+            // عرض آخر 5 مواد
+            const recentCourses = sortedCourses.slice(0, 5);
+            
+            recentCoursesList.innerHTML = '';
+            
+            recentCourses.forEach(course => {
+                const row = document.createElement('tr');
+                
+                // حساب عدد المجموعات
+                const groupsCount = getGroupsByCourseId(course.id).length;
+                
+                row.innerHTML = `
+                    <td>${course.name}</td>
+                    <td>${getDepartmentName(course.department_id)}</td>
+                    <td>${course.credit_hours}</td>
+                    <td>${groupsCount}</td>
+                    <td>
+                        <a href="courses.html?edit=${course.id}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil"></i>
+                            تعديل
+                        </a>
+                        <button class="btn btn-sm btn-danger" onclick="deleteCourseWithConfirmation(${course.id})">
+                            <i class="bi bi-trash"></i>
+                            حذف
+                        </button>
+                    </td>
+                `;
+                
+                recentCoursesList.appendChild(row);
+            });
+            
+            // عرض رسالة إذا لم تكن هناك مواد
+            if (recentCourses.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="5" class="text-center">لا توجد مواد مضافة حتى الآن</td>
+                `;
+                recentCoursesList.appendChild(row);
+            }
+        }
+
+        // عرض آخر المجموعات المضافة
+        function displayRecentGroups() {
+            const groups = getGroups();
+            const recentGroupsList = document.getElementById('recentGroupsList');
+            
+            // ترتيب المجموعات حسب المعرف (افتراضياً أن أحدث المجموعات لها أعلى معرف)
+            const sortedGroups = [...groups].sort((a, b) => b.id - a.id);
+            
+            // عرض آخر 5 مجموعات
+            const recentGroups = sortedGroups.slice(0, 5);
+            
+            recentGroupsList.innerHTML = '';
+            
+            recentGroups.forEach(group => {
+                const row = document.createElement('tr');
+                
+                // الحصول على اسم المادة
+                const course = getCourseById(group.course_id);
+                const courseName = course ? course.name : 'غير معروف';
+                
+                row.innerHTML = `
+                    <td>${courseName}</td>
+                    <td>${group.group_name}</td>
+                    <td>${group.professor}</td>
+                    <td>${group.schedule.day} ${group.schedule.time}</td>
+                    <td>${group.schedule.room}</td>
+                    <td>
+                        <a href="groups.html?edit=${group.id}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil"></i>
+                            تعديل
+                        </a>
+                        <button class="btn btn-sm btn-danger" onclick="deleteGroupWithConfirmation(${group.id})">
+                            <i class="bi bi-trash"></i>
+                            حذف
+                        </button>
+                    </td>
+                `;
+                
+                recentGroupsList.appendChild(row);
+            });
+            
+            // عرض رسالة إذا لم تكن هناك مجموعات
+            if (recentGroups.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="6" class="text-center">لا توجد مجموعات مضافة حتى الآن</td>
+                `;
+                recentGroupsList.appendChild(row);
+            }
+        }
+    </script>
+</body>
+</html>

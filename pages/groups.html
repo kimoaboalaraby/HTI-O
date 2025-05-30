@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المجموعات - نظام تسجيل المواد الجامعية</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- الشريط العلوي -->
+    <nav class="navbar">
+        <a href="../index.html" class="navbar-brand">
+            <i class="bi bi-journal-check"></i>
+            نظام تسجيل المواد
+        </a>
+        <ul class="navbar-nav">
+            <li><a href="dashboard.html" class="nav-link">لوحة التحكم</a></li>
+            <li><a href="courses.html" class="nav-link">إدارة المواد</a></li>
+            <li><a href="groups.html" class="nav-link active">إدارة المجموعات</a></li>
+            <li><a href="users.html" class="nav-link">المستخدمين</a></li>
+        </ul>
+        <div class="navbar-actions">
+            <div class="d-flex align-items-center gap-2">
+                <span id="currentUserName" class="text-white">المسؤول</span>
+                <button id="logoutButton" class="btn btn-outline" style="color: white; border-color: white;">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span class="d-none d-md-inline">تسجيل الخروج</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="container mt-4">
+        <h2 class="mb-4" style="color: var(--primary-color);">إدارة المجموعات الدراسية</h2>
+
+        <!-- زر إضافة مجموعة جديدة -->
+        <div class="mb-4">
+            <button id="addGroupButton" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i>
+                إضافة مجموعة جديدة
+            </button>
+        </div>
+
+        <!-- نموذج إضافة مجموعة جديدة -->
+        <div id="addGroupForm" class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">إضافة مجموعة جديدة</h3>
+            </div>
+            <div class="card-body">
+                <form id="groupForm">
+                    <input type="hidden" id="groupId" name="groupId">
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="groupCourse" class="form-label">المادة</label>
+                            <select class="form-select" id="groupCourse" name="groupCourse" required>
+                                <option value="">اختر المادة</option>
+                                <!-- سيتم ملء هذه القائمة بواسطة JavaScript -->
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="groupName" class="form-label">اسم المجموعة</label>
+                            <input type="text" class="form-control" id="groupName" name="groupName" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="groupProfessor" class="form-label">الأستاذ</label>
+                            <input type="text" class="form-control" id="groupProfessor" name="groupProfessor" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="groupDay" class="form-label">اليوم</label>
+                            <select class="form-select" id="groupDay" name="groupDay" required>
+                                <option value="">اختر اليوم</option>
+                                <option value="السبت">السبت</option>
+                                <option value="الأحد">الأحد</option>
+                                <option value="الاثنين">الاثنين</option>
+                                <option value="الثلاثاء">الثلاثاء</option>
+                                <option value="الأربعاء">الأربعاء</option>
+                                <option value="الخميس">الخميس</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="groupTime" class="form-label">الوقت</label>
+                            <select class="form-select" id="groupTime" name="groupTime" required>
+                                <option value="">اختر الوقت</option>
+                                <option value="08:00-09:30">08:00-09:30</option>
+                                <option value="09:30-11:00">09:30-11:00</option>
+                                <option value="11:00-12:30">11:00-12:30</option>
+                                <option value="12:30-14:00">12:30-14:00</option>
+                                <option value="14:00-15:30">14:00-15:30</option>
+                                <option value="15:30-17:00">15:30-17:00</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="groupRoom" class="form-label">القاعة</label>
+                            <input type="text" class="form-control" id="groupRoom" name="groupRoom" required>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i>
+                            حفظ المجموعة
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- نموذج تعديل مجموعة -->
+        <div id="editGroupForm" class="card mb-4" style="display: none;">
+            <div class="card-header">
+                <h3 class="card-title">تعديل المجموعة</h3>
+            </div>
+            <div class="card-body">
+                <!-- نفس نموذج الإضافة، ولكن سيتم ملؤه ببيانات المجموعة المراد تعديلها -->
+            </div>
+        </div>
+
+        <!-- قائمة المجموعات -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">قائمة المجموعات الدراسية</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>الرقم</th>
+                                <th>المادة</th>
+                                <th>المجموعة</th>
+                                <th>الأستاذ</th>
+                                <th>الموعد</th>
+                                <th>القاعة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminGroupsList">
+                            <!-- سيتم ملء هذا الجدول بواسطة JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- تذييل الصفحة -->
+    <footer class="footer mt-5">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-brand-title">
+                        <i class="bi bi-journal-check"></i>
+                        نظام تسجيل المواد
+                    </div>
+                    <p class="footer-brand-description">
+                        نظام متكامل لتسجيل المواد الجامعية وإنشاء الجداول الدراسية بطريقة سهلة ومبتكرة.
+                    </p>
+                </div>
+                <div class="footer-links">
+                    <h3 class="footer-links-title">روابط الإدارة</h3>
+                    <a href="dashboard.html" class="footer-link">لوحة التحكم</a>
+                    <a href="courses.html" class="footer-link">إدارة المواد</a>
+                    <a href="groups.html" class="footer-link">إدارة المجموعات</a>
+                    <a href="users.html" class="footer-link">المستخدمين</a>
+                </div>
+                <div class="footer-links">
+                    <h3 class="footer-links-title">روابط سريعة</h3>
+                    <a href="../index.html" class="footer-link">الصفحة الرئيسية</a>
+                    <a href="../courses.html" class="footer-link">المواد الدراسية</a>
+                    <a href="../schedule.html" class="footer-link">الجدول الدراسي</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2025 نظام تسجيل المواد الجامعية. جميع الحقوق محفوظة.
+            </div>
+        </div>
+    </footer>
+
+    <!-- ملفات JavaScript -->
+    <script src="../js/data.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>
